@@ -27,16 +27,10 @@ def collect_coeff2(expresion,A): #factoriza el operador A de una expresión "exp
       vt+= (expand(expresion).args[k].coeff(A))
   return (vt)
 #-----------------------------
-def conmutador(A,B):
-  return Commutator(A,B).expand(commutator=True).expand(commutator=True).subs({Commutator(x,p):I, Commutator(p,x):-I,Commutator(p,p):0,Commutator(x,x):0,
+# Optimized conmutador function
+def conmutador(A, B):
+    return Commutator(A, B).expand(commutator=True).expand(commutator=True).subs(commutator_subs)
 
-                                                                               Commutator(a,a_dag):1,Commutator(a_dag,a):-1,Commutator(a_dag,a_dag):0,Commutator(a,a):0,
-
-                                                                               Commutator(sigmap,sigmam):sigmaz,Commutator(sigmam,sigmap):-sigmaz,
-                                                                               Commutator(sigmaz,sigmap):2*sigmap,
-                                                                               Commutator(sigmap,sigmaz):-2*sigmap,Commutator(sigmam,sigmaz):2*sigmam,
-                                                                               Commutator(sigmaz,sigmam):-2*sigmam,
-                                                                               Commutator(sigmap,sigmap):0,Commutator(sigmam,sigmam):0,Commutator(sigmaz,sigmaz):0})
 def com_order(A,B,n): #regresa el conmutador anidado [A,[A,..[A,B]] n veces.
     if n<=1:
         return conmutador(A,B)
@@ -44,7 +38,30 @@ def com_order(A,B,n): #regresa el conmutador anidado [A,[A,..[A,B]] n veces.
     else:
         return com_order(A,conmutador(A,B),n-1)
 #-----------------------------
-#AQUI IBA LAS FUNCIONES RELACIONADAS CON LATEX
+class MyLatexPrinter(LatexPrinter):
+    """Print derivative of a function of symbols in a shorter form.
+    """
+    def _print_Derivative(self, expr):
+        function, *vars = expr.args
+        if not isinstance(type(function), UndefinedFunction) or \
+           not all(isinstance(i, Symbol) for i in vars):
+            return super()._print_Derivative(expr)
+
+        # If you want the printer to work correctly for nested
+        # expressions then use self._print() instead of str() or latex().
+        # See the example of nested modulo below in the custom printing
+        # method section.
+        return "{}_{{{}}}".format(
+            self.print(Symbol(function.func.name_)),
+                        ''.join(self._print(i) for i in vars))
+
+
+def Latex(expr):
+    """ Most of the printers define their own wrappers for print().
+    These wrappers usually take printer settings. Our printer does not have
+    any settings.
+    """
+    print(MyLatexPrinter().doprint(expr))
 #------------------------------
 def BCH(A, B, alpha, n): # Baker_Campbell_Hausdorff formula
     a=0
@@ -106,16 +123,41 @@ def differentiate(T,t):
 def diff_term(T,t):
   return - I*Dagger(T)*T.diff(t)
 #-------------------------------
+def time_dependent_expr(A,B,alpha,n):
+  return BCH(A,B,alpha,n)+ diff_term(A,t)
+#-------------------------------
+def get_arg_from_exp(expression): #obtiene el argumento de una funcion  y separa funciones[1], de operadores[2]
+  #arguments = expression.args
+  #function = expression.func
+  argument_of_exp = expression.args[0]
+  func_list = []
+  operator_list = []
+  symbols =[]
+  unknowns = []
 
-  
+  for arg in argument_of_exp.args:
+    if arg.is_Function:
+      func_list.append(arg)
+    elif isinstance(arg, Operator):
+      operator_list.append(arg)
+    elif isinstance(arg, Symbol):
+      symbols.append(arg)
+    else:
+      unknowns.append(arg)
+  return func_list,operator_list,symbols,unknowns
+#-------------------------------
 
 
+
+t     = symbols(r't', real = True)
+rho = Function(r'\rho')(t)
+r_1 = I*rho.diff(t)/(2*rho)
 x     = Operator(r'\hat{x}')
 p     = Operator(r'\hat{p}')
-omega = symbols(r'\omega', real = True)
+omega = Function(r'\omega')(t)
+#omega = symbols(r'\omega', real = True)
 alpha = symbols(r'\alpha')
-t     = symbols(r't', real = True)
-H     = Rational(1,2)*(p**2+omega**2*x**2)
+H     = (p**2+omega**2*x**2)/2
 l =[x,p]
 sigmap = Operator(r'\hat{\sigma}_+')
 sigmam = Operator(r'\hat{\sigma}_-')
@@ -129,4 +171,28 @@ a = Operator(r'\hat{a}')
 H_3 = omega*(a_dag*a+1/2)
 l_3 = [a,a_dag]
 #---------------------------------------
+commutator_subs = {
+    Commutator(x, p): I,
+    Commutator(p, x): -I,
+    Commutator(p, p): 0,
+    Commutator(x, x): 0,
+
+    Commutator(a, a_dag): 1,
+    Commutator(a_dag, a): -1,
+    Commutator(a_dag, a_dag): 0,
+    Commutator(a, a): 0,
+
+    Commutator(sigmap, sigmam): sigmaz,
+    Commutator(sigmam, sigmap): -sigmaz,
+
+    Commutator(sigmaz, sigmap): 2 * sigmap,
+    Commutator(sigmap, sigmaz): -2 * sigmap,
+    Commutator(sigmam, sigmaz): 2 * sigmam,
+    Commutator(sigmaz, sigmam): -2 * sigmam,
+
+    Commutator(sigmap, sigmap): 0,
+    Commutator(sigmam, sigmam): 0,
+    Commutator(sigmaz, sigmaz): 0,
+}
+#--------------------------------------------
 orden = 8
