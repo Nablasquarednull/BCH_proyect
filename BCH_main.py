@@ -121,12 +121,12 @@ def differentiate(T,t):
   return T.diff(t)
  #-------------------------------
 def diff_term(T,t):
-  return - I*Dagger(T)*T.diff(t)
+  return -I*Dagger(T)*T.diff(t)
 #-------------------------------
 def time_dependent_expr(A,B,alpha,n):
   return BCH(A,B,alpha,n)+ diff_term(A,t)
 #-------------------------------
-def get_arg_from_exp(expression): #obtiene el argumento de una funcion  y separa funciones[1], de operadores[2]
+"""def get_arg_from_exp(expression): #obtiene el argumento de una funcion  y separa funciones[1], de operadores[2]
   #arguments = expression.args
   #function = expression.func
   argument_of_exp = expression.args[0]
@@ -144,10 +144,34 @@ def get_arg_from_exp(expression): #obtiene el argumento de una funcion  y separa
       symbols.append(arg)
     else:
       unknowns.append(arg)
-  return func_list,operator_list,symbols,unknowns
+  return func_list,operator_list,symbols,unknowns"""
 #-------------------------------
+def get_arg_from_exp(expression):
+    argument_of_exp = expression.args[0]
+    func_list = []
+    operator_list = []
+    symbols_list = []
+    unknowns = []
 
+    for arg in argument_of_exp.args:
+        if arg.is_Function:
+            func_list.append(arg)
 
+        elif isinstance(arg, Symbol):  # Check if the argument is a symbol
+            symbols_list.append(arg)
+        elif isinstance(arg, (Add, Mul, Pow)):  # Check for Add, Mul, and Pow (exponentiation)
+            operator_list.append(arg)
+        else:
+            unknowns.append(arg)
+
+    return func_list, operator_list, symbols_list, unknowns
+#-------------------------------------------------------
+def final_expression(Unit_Transform,Operator):
+  func_list,operator_list,symbols_list,unknowns = get_arg_from_exp(Unit_Transform)
+  r_1 = sum(func_list)*sum(unknowns)
+  result = expand(time_dependent_expr(operator_list[0],Operator,r_1,7))
+  return result, func_list,operator_list,symbols_list,unknowns
+#
 
 t     = symbols(r't', real = True)
 rho = Function(r'\rho')(t)
