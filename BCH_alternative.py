@@ -21,9 +21,10 @@ commutator_subs = {
     Commutator(p, p): 0,
     Commutator(x, x): 0}
 #function Lists
-func_list_1 = [sin, lambda x: -sin(x), cos, lambda x: -cos(x), 
+func_list = [sin, lambda x: -sin(x), cos, lambda x: -cos(x), 
                lambda x: sin(x)/omega, lambda x: -sin(x)/omega,
-               lambda x: -omega*sin(x)]
+               lambda x: -omega*sin(x), exp, lambda x: -exp(x)]
+var_list = [log(rho)]
 #Transformation definitions
 T_1 = exp((I*rho.diff(t)/(2*rho))*x**2)
 T_2 = exp(-I*log(rho)/2*(x*p + p*x))
@@ -179,8 +180,20 @@ def calculate_time_dep_exp(exponential, hamiltonian, n=9):
     bch_expression = BCH(-operator, hamiltonian, coeff, n)
     time_dep_expression = expand(time_dep_exp(bch_expression, exponential))
     return time_dep_expression
-        
+#----------------------------------------------
+def final_expression(T_1,T_2,H):
+    first_T = calculate_time_dep_exp(T_1,H)
+    SpS = operadores_inmiscuidos(T_2,p)
+    SxS = operadores_inmiscuidos(T_2,x)    
+    SpS = single_find(SpS,func_list,var_list)
+    SxS = single_find(SxS,func_list,var_list)
+    subs_dict = {p:SpS,x:SxS}
+    return substitute_operators(first_T,subs_dict)
+
+
+
 #test zone
+
 #BCH_test = BCH(H,x,alpha,9).subs({alpha:I*t})
 #BCH_test = BCH(H,p,alpha,9).subs({alpha:I*t})
 #test = extract_coeff(BCH(H,x,alpha,9).subs({alpha:I*t}),x)
@@ -194,10 +207,12 @@ def calculate_time_dep_exp(exponential, hamiltonian, n=9):
 #test = series(exp(t),t,x0 = 0,n = 10).removeO().subs({t:log(rho)})
 #test = single_find(test2,[exp],[log(rho)])
 #print(print_latex(test))
-test = calculate_time_dep_exp(T_1,H)
+#test = calculate_time_dep_exp(T_1,H)
+#subs_dict = {p:operadores_inmiscuidos(T_2,x)}        
+test = final_expression(T_1,T_2,H)
+print(print_latex(test))
 #-------------------------------------------------
 """H = (p**2 + omega**2*x**2 + x*p + p*x)/2
 substitutions = {x: cos(omega*t), p: -I*omega*sin(omega*t)}
 new_H = substitute_operators(H, substitutions)"""
 #------------------------------------------------
-print(print_latex(test))
