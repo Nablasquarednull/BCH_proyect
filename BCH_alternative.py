@@ -161,9 +161,24 @@ def substitute_operators(expr, substitutions):
 
     return _substitute_recursive(expr, substitutions)
 #------------------------------------------------------
-"""def time_dep_exp(Transformacion, Hamiltoniano):
-    operator, coeff = extract_operator_and_coeff(Transformacion)"""
+def time_dep_exp(BCH,transformation):
+  return BCH -I*transformation.args[0].diff(t)
+def calculate_time_dep_exp(exponential, hamiltonian, n=9):
+    """
+    Calculates the time-dependent exponential of a Hamiltonian.
 
+    Args:
+    exponential: The exponential expression.
+    hamiltonian: The Hamiltonian.
+    n: The order of the BCH expansion.
+
+    Returns:
+    The time-dependent exponential expression.
+    """
+    operator, coeff = extract_operator_and_coeff(exponential)
+    bch_expression = BCH(-operator, hamiltonian, coeff, n)
+    time_dep_expression = expand(time_dep_exp(bch_expression, exponential))
+    return time_dep_expression
         
 #test zone
 #BCH_test = BCH(H,x,alpha,9).subs({alpha:I*t})
@@ -179,8 +194,10 @@ def substitute_operators(expr, substitutions):
 #test = series(exp(t),t,x0 = 0,n = 10).removeO().subs({t:log(rho)})
 #test = single_find(test2,[exp],[log(rho)])
 #print(print_latex(test))
-H = (p**2 + omega**2*x**2 + x*p + p*x)/2
+test = calculate_time_dep_exp(T_1,H)
+#-------------------------------------------------
+"""H = (p**2 + omega**2*x**2 + x*p + p*x)/2
 substitutions = {x: cos(omega*t), p: -I*omega*sin(omega*t)}
-
-new_H = substitute_operators(H, substitutions)
-print(print_latex(new_H))
+new_H = substitute_operators(H, substitutions)"""
+#------------------------------------------------
+print(print_latex(test))
