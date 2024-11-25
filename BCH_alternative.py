@@ -68,20 +68,119 @@ def find_and_replace(expression,operator_list,function_list):
     for j in range(len(coeff_list)):
         sumf += coeff_list[j]*operator_list[j]
     return sumf
+#--------------------------------------------
+def extract_operator_and_coeff(expression):
+    """
+    Extracts the operator and coefficient from an expression of the form exp(coeff * operator).
+
+    Args:
+        expression: The expression to extract from.
+
+    Returns:
+        A tuple containing the operator and the coefficient.
+    """
+
+    if not expression.func == exp:
+        raise ValueError("Expression must be an exponential function")
+
+    arg = expression.args[0]
+
+    # Handle simple cases:
+    if arg.is_Mul:
+        operator = arg.args[-1]
+        coeff = arg / operator
+        return operator, coeff
+    elif arg.is_Mul or arg.is_Add:
+        # Handle more complex expressions:
+        # Use pattern matching or other techniques to identify operators and coefficients
+        # ... (Implement more complex pattern matching or symbolic manipulation here)
+        raise NotImplementedError("Complex expressions not yet supported")
+
+    return arg, 1  # If no operator is found, return the entire argument as the operator
+#-----------------------------------------------------        
+def operadores_inmiscuidos(S, x):
+    """
+    Calculates the sandwich <S|x|S> using the BCH formula.
+
+    Args:
+        S: The transformation operator.
+        x: The operator to be sandwiched.
+
+    Returns:
+        The BCH expression for the sandwiched operator.
+    """
+
+    operator, coeff = extract_operator_and_coeff(S)
+    bch_expression = BCH(-operator, x, coeff, n=9)
+
+    # Simplify the BCH expression
+    simplified_expr = bch_expression.simplify()
+
+    return simplified_expr.coeff(x)
+#----------------------------------------------
+def single_find(expression,func_list,var_list):
+    for i in range(len(func_list)):
+        for j in range(len(var_list)):
+            for k in [-1,0,1]:
+                if expression == series(func_list[i](t),t,x0 = 0,n = 9 + k).removeO().subs({t:var_list[j]}):
+                    expression = func_list[i](t).subs({t:var_list[j]})
+                    break
+            else:
+                continue
+            break
+        else:
+            continue
+        break
+    return expression
+#---------------------------------------------
+def substitute_operators(expr, substitutions):
+    """
+    Substitutes operators in an expression with their corresponding functions.
+
+    Args:
+        expr: The expression to substitute in.
+        substitutions: A dictionary mapping operators to their substitutions.
+
+    Returns:
+        The expression with substituted operators.
+    """
+
+    # Recursively substitute operators in the expression
+    def _substitute_recursive(expr, substitutions):
+        if isinstance(expr, Add):
+            return Add(*[_substitute_recursive(arg, substitutions) for arg in expr.args])
+        elif isinstance(expr, Mul):
+            return Mul(*[_substitute_recursive(arg, substitutions) for arg in expr.args])
+        elif isinstance(expr, Pow):
+            base, exponent = expr.args
+            return Pow(_substitute_recursive(base, substitutions), exponent)
+        elif expr in substitutions:
+            return substitutions[expr]
+        else:
+            return expr
+
+    return _substitute_recursive(expr, substitutions)
+#------------------------------------------------------
+"""def time_dep_exp(Transformacion, Hamiltoniano):
+    operator, coeff = extract_operator_and_coeff(Transformacion)"""
 
         
 #test zone
 #BCH_test = BCH(H,x,alpha,9).subs({alpha:I*t})
-BCH_test = BCH(H,p,alpha,9).subs({alpha:I*t})
+#BCH_test = BCH(H,p,alpha,9).subs({alpha:I*t})
 #test = extract_coeff(BCH(H,x,alpha,9).subs({alpha:I*t}),x)
 #test = com_order(H,x,8)
 #test = series(cos(omega*t),omega*t,x0 = 0, n = 9).removeO()
 #test = extract_coeff(BCH(H,x,alpha,9).subs({alpha:I*t}),x)
-test = find_and_replace(BCH_test,[x,p],func_list_1)
-"""a = BCH_test.coeff(x)
-print(a)
-lol = (a == series(cos(omega*t),omega*t,x0 = 0,n = 9).removeO())
-if lol == True:
-    a = cos(omega*t)
-print(a)"""
-print(print_latex(test))
+#test = find_and_replace(BCH_test,[x,p],func_list_1)
+#test = extract_operator_and_coeff(T_1)
+#test = extract_operator_and_coeff(T_2)
+#test2 = operadores_inmiscuidos(T_2,x)
+#test = series(exp(t),t,x0 = 0,n = 10).removeO().subs({t:log(rho)})
+#test = single_find(test2,[exp],[log(rho)])
+#print(print_latex(test))
+H = (p**2 + omega**2*x**2 + x*p + p*x)/2
+substitutions = {x: cos(omega*t), p: -I*omega*sin(omega*t)}
+
+new_H = substitute_operators(H, substitutions)
+print(print_latex(new_H))
