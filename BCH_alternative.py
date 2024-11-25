@@ -14,14 +14,20 @@ p = Operator(r'\hat{p}')
 omega = symbols(r'\omega')
 H = (p**2+omega**2*x**2)/2
 alpha = symbols(r'\alpha')
+rho = Function(r'\rho')(t)
 commutator_subs = {
     Commutator(x, p): I,
     Commutator(p, x): -I,
     Commutator(p, p): 0,
     Commutator(x, x): 0}
-#--------------------------------------------------------
+#function Lists
 func_list_1 = [sin, lambda x: -sin(x), cos, lambda x: -cos(x), 
-               lambda x: sin(x)/omega, lambda x: -sin(x)/omega]
+               lambda x: sin(x)/omega, lambda x: -sin(x)/omega,
+               lambda x: -omega*sin(x)]
+#Transformation definitions
+T_1 = exp((I*rho.diff(t)/(2*rho))*x**2)
+T_2 = exp(-I*log(rho)/2*(x*p + p*x))
+
 #----------------------------------------------------------
 def conmutador(A, B):
     result = Commutator(A, B).expand(commutator=True).expand(commutator=True).subs(commutator_subs)
@@ -54,6 +60,10 @@ def find_and_replace(expression,operator_list,function_list):
             for k in offset:
                 if coeff_list[i] == series(function_list[j](omega*t),omega*t,x0 = 0,n = 9 + k).removeO():
                     coeff_list[i] = function_list[j](omega*t)
+                    break
+            else:
+                continue
+            break
     sumf = 0
     for j in range(len(coeff_list)):
         sumf += coeff_list[j]*operator_list[j]
@@ -61,7 +71,8 @@ def find_and_replace(expression,operator_list,function_list):
 
         
 #test zone
-BCH_test = BCH(H,x,alpha,9).subs({alpha:I*t})
+#BCH_test = BCH(H,x,alpha,9).subs({alpha:I*t})
+BCH_test = BCH(H,p,alpha,9).subs({alpha:I*t})
 #test = extract_coeff(BCH(H,x,alpha,9).subs({alpha:I*t}),x)
 #test = com_order(H,x,8)
 #test = series(cos(omega*t),omega*t,x0 = 0, n = 9).removeO()
