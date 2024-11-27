@@ -1,13 +1,5 @@
 # Fdb version 4
-["bibtex debug"] 0 "debug.aux" "debug.bbl" "debug" 1732571321.23032 0
-  "/usr/share/texmf-dist/bibtex/bst/base/plain.bst" 1727349926 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "cite.bib" 0 -1 0 ""
-  "debug.aux" 0 -1 0 "pdflatex"
-  (generated)
-  "debug.bbl"
-  "debug.blg"
-  (rewritten before read)
-["pdflatex"] 1732571320.60876 "debug.tex" "debug.pdf" "debug" 1732571321.23046 0
+["pdflatex"] 1732751107.27972 "debug.tex" "debug.pdf" "debug" 1732751107.80361 0
   "/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1727349926 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1727349926 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texmf-dist/fonts/tfm/jknappen/ec/ecbx1728.tfm" 1727349926 3584 ad49a18d8515beef6d92d4d3f197d0fd ""
@@ -106,9 +98,8 @@
   "/usr/share/texmf-dist/web2c/texmf.cnf" 1727349926 41588 b43d3e860a4f94167ee1e725ff526a72 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1731121334.4558 5351801 0ff7a70e11e8ddcb1fb4c43fc291c153 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1731121271 8337953 ee25689a26335d67b3cac02200ffad0b ""
-  "debug.aux" 1732571321.06552 248 d72be6893be35a1d5f7c6834e563510d "pdflatex"
-  "debug.bbl" 0 -1 0 "bibtex debug"
-  "debug.tex" 1732571318.89456 2954 a60a26e81727768df4d5a073190c4f9c ""
+  "debug.aux" 1732751107.74966 194 672a146dc988f7feeb3682a72b20dc37 "pdflatex"
+  "debug.tex" 1732751104.81633 3110 1853be619b01e018cf5100a3ba9dab5c ""
   (generated)
   "debug.aux"
   "debug.log"

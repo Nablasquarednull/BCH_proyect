@@ -24,7 +24,7 @@ commutator_subs = {
 func_list = [sin, lambda x: -sin(x), cos, lambda x: -cos(x), 
                lambda x: sin(x)/omega, lambda x: -sin(x)/omega,
                lambda x: -omega*sin(x), exp, lambda x: -exp(x)]
-var_list = [log(rho)]
+var_list = [log(rho),-log(rho)]
 #Transformation definitions
 T_1 = exp((I*rho.diff(t)/(2*rho))*x**2)
 T_2 = exp(-I*log(rho)/2*(x*p + p*x))
@@ -210,7 +210,9 @@ def final_expression(T_1,T_2,H):
 #test = calculate_time_dep_exp(T_1,H)
 #subs_dict = {p:operadores_inmiscuidos(T_2,x)}        
 test = final_expression(T_1,T_2,H)
+#z = operadores_inmiscuidos(T_2,x)
 print(print_latex(test))
+#print(print_latex(single_find(z,func_list,var_list)))
 #-------------------------------------------------
 """H = (p**2 + omega**2*x**2 + x*p + p*x)/2
 substitutions = {x: cos(omega*t), p: -I*omega*sin(omega*t)}
