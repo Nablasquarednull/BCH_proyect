@@ -21,7 +21,7 @@ commutator_subs = {
     Commutator(p, p): 0,
     Commutator(x, x): 0}
 #function Lists
-func_list = [sin, lambda x: -sin(x), cos, lambda x: -cos(x),
+func_list = [sin, lambda x: -sin(x), cos, lambda x: -cos(x), 
                lambda x: sin(x)/omega, lambda x: -sin(x)/omega,
                lambda x: -omega*sin(x), exp, lambda x: -exp(x)]
 var_list = [log(rho),-log(rho)]
@@ -46,7 +46,7 @@ def BCH(A, B, alpha, n):
     for i in range(1, n+1):
         alpha_pow_i = alpha**i  # Calculate alpha^i explicitly
         a += (alpha_pow_i / factorials[i]) * com_order(A, B, i)
-    return B + a
+    return B + a  
 #---------------------------------------------------------
 def extract_coeff(expression,Operator):
     return expression.coeff(Operator)
@@ -98,7 +98,7 @@ def extract_operator_and_coeff(expression):
         raise NotImplementedError("Complex expressions not yet supported")
 
     return arg, 1  # If no operator is found, return the entire argument as the operator
-#-----------------------------------------------------
+#-----------------------------------------------------        
 def operadores_inmiscuidos(S, x):
     """
     Calculates the sandwich <S|x|S> using the BCH formula.
@@ -112,7 +112,7 @@ def operadores_inmiscuidos(S, x):
     """
 
     operator, coeff = extract_operator_and_coeff(S)
-    bch_expression = BCH(-operator, x, coeff, n=9)
+    bch_expression = BCH(-operator, x, coeff, n=5)
 
     # Simplify the BCH expression
     simplified_expr = bch_expression.simplify()
@@ -184,11 +184,11 @@ def calculate_time_dep_exp(exponential, hamiltonian, n=9):
 def final_expression(T_1,T_2,H):
     first_T = calculate_time_dep_exp(T_1,H)
     SpS = operadores_inmiscuidos(T_2,p)
-    SxS = operadores_inmiscuidos(T_2,x)
-    SpS = single_find(SpS,func_list,var_list)*p
-    SxS = single_find(SxS,func_list,var_list)*x
+    SxS = operadores_inmiscuidos(T_2,x)    
+    SpS = single_find(SpS,func_list,var_list)
+    SxS = single_find(SxS,func_list,var_list)
     subs_dict = {p:SpS,x:SxS}
-    return substitute_operators(first_T,subs_dict)- I*T_2.args[0].diff(t)
+    return substitute_operators(first_T,subs_dict)
 
 
 
@@ -203,18 +203,17 @@ def final_expression(T_1,T_2,H):
 #test = find_and_replace(BCH_test,[x,p],func_list_1)
 #test = extract_operator_and_coeff(T_1)
 #test = extract_operator_and_coeff(T_2)
-#test2 = operadores_inmiscuidos(T_2,x)
+z = operadores_inmiscuidos(T_2,p)
 #test = series(exp(t),t,x0 = 0,n = 10).removeO().subs({t:log(rho)})
 #test = single_find(test2,[exp],[log(rho)])
 #print(print_latex(test))
 #test = calculate_time_dep_exp(T_1,H)
-#subs_dict = {p:operadores_inmiscuidos(T_2,x)}
-#test = final_expression(T_1,T_2,H)
+#subs_dict = {p:operadores_inmiscuidos(T_2,x)}        
 #z = operadores_inmiscuidos(T_2,x)
 #print(print_latex(test))
-#print(print_latex(single_find(z,func_list,var_list)))
+print(print_latex(single_find(z,func_list,var_list)))
 #-------------------------------------------------
+"""H = (p**2 + omega**2*x**2 + x*p + p*x)/2
+substitutions = {x: cos(omega*t), p: -I*omega*sin(omega*t)}
+new_H = substitute_operators(H, substitutions)"""
 #------------------------------------------------
-
-expresion = final_expression(T_1,T_2,H)
-print(print_latex(expresion))
